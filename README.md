@@ -11,7 +11,7 @@ Once installed it works two ways:
 
 ---
 
-## Install (for teammates)
+## Install
 
 Add the marketplace once, then install the plugin:
 
@@ -66,6 +66,48 @@ General).
 3. **Two rewritten prompts** in separate code blocks — (a) tightest rewrite, (b) a different angle
 4. A recommendation on which to use and why
 
+### Examples
+
+**Coding** — turn a vague ask into a precise, testable one:
+
+```
+/improve-prompt coding write a python function to dedupe a list
+```
+It fills in the gaps it needs (preserve order? hashable items? in-place vs
+new list?), then returns two rewrites — e.g. one specifying an order-preserving
+`dict.fromkeys` approach with a `pytest` case, and an alternative that handles
+unhashable elements — plus which to pick.
+
+**Writing** — sharpen tone, audience, and length:
+
+```
+/improve-prompt writing draft an email telling the team the deploy is delayed
+```
+Asks for audience, tone, and the key facts (new date, cause, impact), then
+returns a concise version and a warmer/apologetic variant.
+
+**Analysis** — frame the decision and the rigor:
+
+```
+/improve-prompt analysis compare RDS vs self-managed Postgres for our app
+```
+Surfaces the missing inputs (scale, team size, budget, compliance), then
+returns a rewrite structured as a cost/ops trade-off and an alternative framed
+as a risk assessment.
+
+**No command / auto-trigger** — just paste a draft and ask:
+
+```
+Make this prompt better: "summarize this doc"
+```
+The skill fires on its own and returns the same two-variant output.
+
+**Inline draft (default General variant)** — let it infer the task type:
+
+```
+/improve-prompt help me plan a weekly sandbox refresh runbook
+```
+
 ---
 
 ## Repo layout
@@ -87,5 +129,5 @@ improve-prompt-plugin/
 
 - Edit the skill at `plugins/improve-prompt/skills/improve-prompt/SKILL.md`.
 - Bump `version` in `plugins/improve-prompt/.claude-plugin/plugin.json` on each
-  change so teammates can pull updates.
-- Push to GitHub. Teammates run the **Update** commands above.
+  change so installs can pull updates.
+- Push to GitHub, then run the **Update** commands above to pull the change.
