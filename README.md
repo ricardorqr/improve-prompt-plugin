@@ -68,42 +68,119 @@ General).
 
 ### Examples
 
-**Coding** — turn a vague ask into a precise, testable one:
+Each example shows the vague draft you start with (**Before**) and one of the
+improved prompts the skill returns (**After**). In practice you always get two
+variants plus a recommendation — a single "After" is shown here for brevity.
 
+#### Coding
+
+Invoke:
 ```
 /improve-prompt coding write a python function to dedupe a list
 ```
-It fills in the gaps it needs (preserve order? hashable items? in-place vs
-new list?), then returns two rewrites — e.g. one specifying an order-preserving
-`dict.fromkeys` approach with a `pytest` case, and an alternative that handles
-unhashable elements — plus which to pick.
 
-**Writing** — sharpen tone, audience, and length:
+**Before**
+```
+write a python function to dedupe a list
+```
 
+**After**
+```
+You are a senior Python engineer. Write a function `dedupe(items)` that
+removes duplicates from a list while PRESERVING first-seen order.
+
+Requirements:
+- Assume elements are hashable; if a value is unhashable, raise TypeError
+  with a clear message.
+- Do not mutate the input; return a new list.
+- Target Python 3.11+, standard library only.
+
+Include a short docstring and 3 pytest cases: empty list, all-unique,
+and duplicates interleaved with order-sensitivity (e.g. [3,1,3,2,1] -> [3,1,2]).
+```
+
+#### Writing
+
+Invoke:
 ```
 /improve-prompt writing draft an email telling the team the deploy is delayed
 ```
-Asks for audience, tone, and the key facts (new date, cause, impact), then
-returns a concise version and a warmer/apologetic variant.
 
-**Analysis** — frame the decision and the rigor:
+**Before**
+```
+draft an email telling the team the deploy is delayed
+```
 
+**After**
+```
+You are writing an internal email as the release owner. Audience: the
+engineering team (technical, already aware a deploy was planned).
+
+Task: tell them the deploy is delayed. Keep it under 120 words, direct and
+non-alarming — no corporate filler.
+
+Include, using placeholders where I haven't given specifics:
+- The new target date/time: {{new_date}}
+- The cause in one plain sentence: {{cause}}
+- The impact on them and what (if anything) they need to do: {{impact}}
+
+Tone: calm, accountable, no over-apologizing. End with where to ask questions.
+```
+
+#### Analysis
+
+Invoke:
 ```
 /improve-prompt analysis compare RDS vs self-managed Postgres for our app
 ```
-Surfaces the missing inputs (scale, team size, budget, compliance), then
-returns a rewrite structured as a cost/ops trade-off and an alternative framed
-as a risk assessment.
 
-**No command / auto-trigger** — just paste a draft and ask:
+**Before**
+```
+compare RDS vs self-managed Postgres for our app
+```
 
+**After**
+```
+Act as a pragmatic infrastructure architect. Compare AWS RDS (managed) vs
+self-managed PostgreSQL on EC2 for our application, to inform a build-vs-buy
+decision.
+
+Evaluate across: operational effort (backups, patching, HA/failover), cost at
+our scale, performance/tuning control, security & compliance, and scaling path.
+
+Present a comparison table (dimension | RDS | self-managed), then a
+recommendation with the top 2-3 deciding factors. State the assumptions you're
+making about scale, team size, and budget, and flag where the answer would flip
+if those change. Don't speculate beyond what these inputs support.
+```
+
+#### No command / auto-trigger
+
+You don't have to type the command — just paste a draft and ask. The skill
+fires on its own and returns the same before/after + two-variant output.
+
+**Before**
 ```
 Make this prompt better: "summarize this doc"
 ```
-The skill fires on its own and returns the same two-variant output.
 
-**Inline draft (default General variant)** — let it infer the task type:
+**After (one variant)**
+```
+Summarize the document below for a reader who hasn't seen it. Produce:
+- A 2-sentence TL;DR
+- 3-5 bullet points covering the key decisions/takeaways
+- Any open questions or action items it raises
 
+Keep it under 150 words. Don't add facts that aren't in the document.
+
+<document>
+{{paste_document_here}}
+</document>
+```
+
+#### Inline draft (default General variant)
+
+If you don't name a variant, it infers the task type (defaulting to General):
 ```
 /improve-prompt help me plan a weekly sandbox refresh runbook
 ```
