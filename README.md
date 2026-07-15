@@ -16,15 +16,12 @@ Once installed it works two ways:
 Add the marketplace once, then install the plugin:
 
 ```
-/plugin marketplace add <your-org>/improve-prompt-plugin
+/plugin marketplace add ricardorqr/improve-prompt-plugin
 /plugin install improve-prompt@improve-prompt-marketplace
 ```
 
 Restart Claude Code (or start a new session) and confirm a single
 `/improve-prompt` entry appears in the `/` menu.
-
-> Replace `<your-org>/improve-prompt-plugin` with the actual GitHub
-> `owner/repo` this lives in.
 
 ## Update
 
