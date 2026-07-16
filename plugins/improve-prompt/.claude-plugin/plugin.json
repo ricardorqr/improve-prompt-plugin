@@ -1,7 +1,13 @@
 {
   "name": "improve-prompt",
+  "displayName": "Improve Prompt",
   "description": "Rewrite a draft prompt into a clearer, more effective one for Claude Opus 4.8. Produces two improved variants plus a recommendation, tuned for coding, writing, analysis, or general tasks.",
   "version": "1.0.0",
+  "author": {
+    "name": "ricardorqr"
+  },
+  "homepage": "https://github.com/ricardorqr/improve-prompt-plugin",
+  "repository": "https://github.com/ricardorqr/improve-prompt-plugin",
   "keywords": [
     "prompt",
     "prompt-engineering",
