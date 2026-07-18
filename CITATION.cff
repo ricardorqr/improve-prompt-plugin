@@ -1,0 +1,18 @@
+cff-version: 1.2.0
+message: "If you use this plugin, please cite it using the metadata below."
+title: "improve-prompt — Claude Code Plugin"
+abstract: "Rewrite a draft prompt into two improved variants plus a recommendation, tuned for coding, writing, analysis, or general tasks."
+type: software
+authors:
+  - family-names: Ribeiro
+    given-names: Ricardo
+    alias: ricardorqr
+repository-code: "https://github.com/ricardorqr/improve-prompt-plugin"
+url: "https://github.com/ricardorqr/improve-prompt-plugin"
+license: MIT
+version: "1.0.1"
+date-released: "2026-07-16"
+keywords:
+  - claude-code
+  - prompt-engineering
+  - productivity
