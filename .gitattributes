@@ -1,0 +1,4 @@
+# Count Markdown toward the repository "Languages" bar on GitHub.
+# GitHub Linguist treats Markdown as prose and hides it by default; this
+# override makes it detectable so the repo shows a Languages breakdown.
+*.md linguist-detectable=true
