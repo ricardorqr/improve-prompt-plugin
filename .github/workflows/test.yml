@@ -10,7 +10,7 @@ jobs:
     name: Tier 1 static validation
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       # Native install (not npm). `claude plugin validate` needs no auth.
       - name: Install Claude Code CLI
@@ -29,7 +29,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       # Full history so the CLI's git-based marketplace add/update behaves.
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
