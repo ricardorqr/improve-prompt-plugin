@@ -6,7 +6,7 @@ improved variants plus a recommendation**, tuned for one of four task types:
 General, Coding, Writing, or Analysis.
 
 Once installed it works two ways:
-- As the **`/improve-prompt`** slash command, and
+- As the **`/improve-prompt:start`** slash command, and
 - As an **auto-triggering skill** (just paste a draft and ask to improve it).
 
 ---
@@ -21,7 +21,7 @@ Add the marketplace once, then install the plugin:
 ```
 
 Restart Claude Code (or start a new session) and confirm a single
-`/improve-prompt` entry appears in the `/` menu.
+`/improve-prompt:start` entry appears in the `/` menu.
 
 ## Update
 
@@ -33,7 +33,7 @@ Restart Claude Code (or start a new session) and confirm a single
 ## Uninstall
 
 Uninstalling removes the **entire plugin** — the skill and the
-`/improve-prompt` command — in one atomic action. Nothing is left behind.
+`/improve-prompt:start` command — in one atomic action. Nothing is left behind.
 
 ```
 /plugin uninstall improve-prompt@improve-prompt-marketplace
@@ -49,14 +49,14 @@ Uninstalling removes the **entire plugin** — the skill and the
 
 ## Using it
 
-- **With your draft inline:** `/improve-prompt fix my flaky pytest suite`
-- **Command alone:** type `/improve-prompt`, then paste your draft next.
+- **With your draft inline:** `/improve-prompt:start fix my flaky pytest suite`
+- **Command alone:** type `/improve-prompt:start`, then paste your draft next.
 - **No command at all:** paste a draft and say *"make this prompt better"* — the
   skill auto-triggers.
 
-Hint the variant explicitly if you want: `/improve-prompt coding ...`,
-`/improve-prompt writing ...`, `/improve-prompt analysis ...`, or
-`/improve-prompt general ...`. Otherwise it infers the best fit (defaulting to
+Hint the variant explicitly if you want: `/improve-prompt:start coding ...`,
+`/improve-prompt:start writing ...`, `/improve-prompt:start analysis ...`, or
+`/improve-prompt:start general ...`. Otherwise it infers the best fit (defaulting to
 General).
 
 ### What you get back
@@ -76,7 +76,7 @@ variants plus a recommendation — a single "After" is shown here for brevity.
 
 Invoke:
 ```
-/improve-prompt coding write a python function to dedupe a list
+/improve-prompt:start coding write a python function to dedupe a list
 ```
 
 **Before**
@@ -103,7 +103,7 @@ and duplicates interleaved with order-sensitivity (e.g. [3,1,3,2,1] -> [3,1,2]).
 
 Invoke:
 ```
-/improve-prompt writing draft an email telling the team the deploy is delayed
+/improve-prompt:start writing draft an email telling the team the deploy is delayed
 ```
 
 **Before**
@@ -131,7 +131,7 @@ Tone: calm, accountable, no over-apologizing. End with where to ask questions.
 
 Invoke:
 ```
-/improve-prompt analysis compare RDS vs self-managed Postgres for our app
+/improve-prompt:start analysis compare RDS vs self-managed Postgres for our app
 ```
 
 **Before**
@@ -182,7 +182,7 @@ Keep it under 150 words. Don't add facts that aren't in the document.
 
 If you don't name a variant, it infers the task type (defaulting to General):
 ```
-/improve-prompt help me plan a weekly sandbox refresh runbook
+/improve-prompt:start help me plan a weekly sandbox refresh runbook
 ```
 
 ---
@@ -198,13 +198,13 @@ improve-prompt-plugin/
         ├── .claude-plugin/
         │   └── plugin.json              # plugin manifest (name, version, keywords)
         └── skills/
-            └── improve-prompt/
+            └── start/
                 └── SKILL.md             # the skill (command + auto-trigger)
 ```
 
 ## Maintaining
 
-- Edit the skill at `plugins/improve-prompt/skills/improve-prompt/SKILL.md`.
+- Edit the skill at `plugins/improve-prompt/skills/start/SKILL.md`.
 - Bump `version` in `plugins/improve-prompt/.claude-plugin/plugin.json` on each
   change so installs can pull updates.
 - Push to GitHub, then run the **Update** commands above to pull the change.

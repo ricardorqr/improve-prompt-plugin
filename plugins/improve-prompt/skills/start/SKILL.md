@@ -1,6 +1,6 @@
 ---
-name: improve-prompt
-description: Use when the user wants to improve, rewrite, or optimize a prompt for Claude — including when they paste a draft prompt and ask for a better version, or invoke /improve-prompt. Produces two improved variants plus a recommendation, tuned for coding, writing, analysis, or general tasks.
+name: start
+description: Use when the user wants to improve, rewrite, or optimize a prompt for Claude — including when they paste a draft prompt and ask for a better version, or invoke /improve-prompt:start. Produces two improved variants plus a recommendation, tuned for coding, writing, analysis, or general tasks.
 ---
 
 # Improve Prompt
