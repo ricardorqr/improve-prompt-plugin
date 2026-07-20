@@ -5,8 +5,8 @@ description: Use when the user wants to improve, rewrite, or optimize a prompt f
 
 # Improve Prompt
 
-Rewrite the user's draft prompt into a clearer, more effective one for Claude
-Opus 4.8. Pick the variant matching the task (default to General if unclear;
+Rewrite the user's draft prompt into a clearer, more effective one for Claude.
+Pick the variant matching the task (default to General if unclear;
 infer from the prompt's content when obvious):
 
 - **General** — anything that doesn't fit neatly below.

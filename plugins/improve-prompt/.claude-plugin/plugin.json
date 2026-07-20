@@ -1,8 +1,9 @@
 {
   "name": "improve-prompt",
   "displayName": "Improve Prompt",
-  "description": "Rewrite a draft prompt into a clearer, more effective one for Claude Opus 4.8. Produces two improved variants plus a recommendation, tuned for coding, writing, analysis, or general tasks.",
-  "version": "1.0.1",
+  "description": "Rewrite a draft prompt into a clearer, more effective one for Claude. Produces two improved variants plus a recommendation, tuned for coding, writing, analysis, or general tasks.",
+  "version": "1.0.2",
+  "license": "MIT",
   "author": {
     "name": "ricardorqr"
   },

@@ -1,7 +1,7 @@
 # improve-prompt — Claude Code Plugin
 
 A Claude Code plugin that rewrites your draft prompts into stronger ones for
-Claude Opus 4.8. Given any prompt, it flags what's missing, then returns **two
+Claude. Given any prompt, it flags what's missing, then returns **two
 improved variants plus a recommendation**, tuned for one of four task types:
 General, Coding, Writing, or Analysis.
 

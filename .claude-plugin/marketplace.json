@@ -8,7 +8,7 @@
   "plugins": [
     {
       "name": "improve-prompt",
-      "description": "Rewrite a draft prompt into a clearer, more effective one for Claude Opus 4.8. Produces two improved variants plus a recommendation, tuned for coding, writing, analysis, or general tasks. Provides the /improve-prompt command and auto-triggers as a skill.",
+      "description": "Rewrite a draft prompt into a clearer, more effective one for Claude. Produces two improved variants plus a recommendation, tuned for coding, writing, analysis, or general tasks. Provides the /improve-prompt command and auto-triggers as a skill.",
       "author": {
         "name": "ricardorqr"
       },
