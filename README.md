@@ -202,6 +202,26 @@ improve-prompt-plugin/
                 └── SKILL.md             # the skill (command + auto-trigger)
 ```
 
+## Testing
+
+Two scripts under `scripts/` verify the plugin:
+
+- **`scripts/test.sh`** (Tier 1, static) — runs `claude plugin validate --strict`
+  on both manifests and asserts internal consistency: version agreement across
+  `plugin.json` / `CITATION.cff` / `CHANGELOG.md`, the skill layout
+  (`skills/start/` with `name: start`, no stale `skills/improve-prompt/`), and
+  that the command derives to `/improve-prompt:start`. Touches no global state;
+  safe for CI and pre-push hooks.
+- **`scripts/smoke-lifecycle.sh`** (Tier 2, lifecycle) — installs → uninstalls →
+  reinstalls the plugin in a throwaway `CLAUDE_CONFIG_DIR`, so it never touches
+  your real `~/.claude`. It tests the committed working tree via a local-path
+  marketplace. Slower and network-touching; run on demand, not in a hook.
+
+```
+./scripts/test.sh              # fast, always safe
+./scripts/smoke-lifecycle.sh   # full lifecycle, isolated
+```
+
 ## Maintaining
 
 - Edit the skill at `plugins/improve-prompt/skills/start/SKILL.md`.
