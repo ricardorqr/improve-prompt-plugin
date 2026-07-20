@@ -1,0 +1,25 @@
+name: test
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+jobs:
+  tier1:
+    name: Tier 1 static validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Native install (not npm). `claude plugin validate` needs no auth.
+      - name: Install Claude Code CLI
+        run: |
+          curl -fsSL https://claude.ai/install.sh | bash
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Show CLI version
+        run: claude --version
+
+      - name: Run Tier 1 tests
+        run: ./scripts/test.sh

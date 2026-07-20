@@ -30,11 +30,12 @@ EXPECT_PLUGIN="improve-prompt"
 EXPECT_SKILL="start"
 EXPECT_COMMAND="improve-prompt:start"
 
-pass=0 fail=0
-green="$(printf '\033[32m')"; red="$(printf '\033[31m')"; dim="$(printf '\033[2m')"; rst="$(printf '\033[0m')"
+pass=0 fail=0 skip=0
+green="$(printf '\033[32m')"; red="$(printf '\033[31m')"; yellow="$(printf '\033[33m')"; dim="$(printf '\033[2m')"; rst="$(printf '\033[0m')"
 
 ok()   { pass=$((pass+1)); printf "  %sPASS%s %s\n" "$green" "$rst" "$1"; }
 bad()  { fail=$((fail+1)); printf "  %sFAIL%s %s\n" "$red" "$rst" "$1"; [ -n "${2:-}" ] && printf "       %s%s%s\n" "$dim" "$2" "$rst"; }
+skipped() { skip=$((skip+1)); printf "  %sSKIP%s %s\n" "$yellow" "$rst" "$1"; [ -n "${2:-}" ] && printf "       %s%s%s\n" "$dim" "$2" "$rst"; }
 
 # Extract a JSON string field without requiring jq.
 json_field() { # <file> <key>
@@ -44,16 +45,24 @@ json_field() { # <file> <key>
 printf "improve-prompt · Tier 1 static validation\n\n"
 
 # --- 1. Manifest validation (authoritative, --strict for CI-grade) -----------
+# The `claude` CLI is optional: if it's not on PATH these two checks are SKIPPED
+# (not failed), so the consistency checks below still gate everywhere. CI
+# installs the CLI so the strict validation actually runs.
 printf "Manifests\n"
-if claude plugin validate "$PLUGIN_DIR" --strict >/dev/null 2>&1; then
-  ok "plugin manifest validates (--strict)"
+if command -v claude >/dev/null 2>&1; then
+  if claude plugin validate "$PLUGIN_DIR" --strict >/dev/null 2>&1; then
+    ok "plugin manifest validates (--strict)"
+  else
+    bad "plugin manifest failed --strict" "$(claude plugin validate "$PLUGIN_DIR" --strict 2>&1 | tail -3)"
+  fi
+  if claude plugin validate . --strict >/dev/null 2>&1; then
+    ok "marketplace manifest validates (--strict)"
+  else
+    bad "marketplace manifest failed --strict" "$(claude plugin validate . --strict 2>&1 | tail -3)"
+  fi
 else
-  bad "plugin manifest failed --strict" "$(claude plugin validate "$PLUGIN_DIR" --strict 2>&1 | tail -3)"
-fi
-if claude plugin validate . --strict >/dev/null 2>&1; then
-  ok "marketplace manifest validates (--strict)"
-else
-  bad "marketplace manifest failed --strict" "$(claude plugin validate . --strict 2>&1 | tail -3)"
+  skipped "plugin manifest --strict validation" "claude CLI not on PATH"
+  skipped "marketplace manifest --strict validation" "claude CLI not on PATH"
 fi
 
 # --- 2. Version agreement ----------------------------------------------------
@@ -115,5 +124,5 @@ else
 fi
 
 # --- Summary -----------------------------------------------------------------
-printf "\n%d passed, %d failed\n" "$pass" "$fail"
+printf "\n%d passed, %d failed, %d skipped\n" "$pass" "$fail" "$skip"
 [ "$fail" -eq 0 ] || exit 1

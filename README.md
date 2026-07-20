@@ -222,6 +222,21 @@ Two scripts under `scripts/` verify the plugin:
 ./scripts/smoke-lifecycle.sh   # full lifecycle, isolated
 ```
 
+**CI:** `.github/workflows/test.yml` installs the Claude Code CLI and runs Tier 1
+on every push to `master` and on pull requests. (`claude plugin validate` needs
+no auth, so it runs unauthenticated in CI.)
+
+**Pre-push hook:** a committed hook at `.githooks/pre-push` runs Tier 1 before
+each push and blocks it on failure. Enable it once per clone:
+
+```
+git config core.hooksPath .githooks
+```
+
+If the `claude` CLI isn't on your `PATH`, the two `--strict` manifest checks are
+skipped (not failed) — the consistency checks still run. Bypass a single push
+with `git push --no-verify`.
+
 ## Maintaining
 
 - Edit the skill at `plugins/improve-prompt/skills/start/SKILL.md`.
