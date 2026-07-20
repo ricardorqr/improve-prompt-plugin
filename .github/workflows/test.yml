@@ -23,3 +23,25 @@ jobs:
 
       - name: Run Tier 1 tests
         run: ./scripts/test.sh
+
+  tier2:
+    name: Tier 2 lifecycle (isolated)
+    runs-on: ubuntu-latest
+    steps:
+      # Full history so the CLI's git-based marketplace add/update behaves.
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install Claude Code CLI
+        run: |
+          curl -fsSL https://claude.ai/install.sh | bash
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Show CLI version
+        run: claude --version
+
+      # Runs the real install/uninstall/reinstall cycle in a throwaway
+      # CLAUDE_CONFIG_DIR against this checkout — no shared/global state.
+      - name: Run Tier 2 lifecycle smoke test
+        run: ./scripts/smoke-lifecycle.sh

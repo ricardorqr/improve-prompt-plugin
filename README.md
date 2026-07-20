@@ -215,16 +215,18 @@ Two scripts under `scripts/` verify the plugin:
 - **`scripts/smoke-lifecycle.sh`** (Tier 2, lifecycle) — installs → uninstalls →
   reinstalls the plugin in a throwaway `CLAUDE_CONFIG_DIR`, so it never touches
   your real `~/.claude`. It tests the committed working tree via a local-path
-  marketplace. Slower and network-touching; run on demand, not in a hook.
+  marketplace. Slower and git/network-touching; runs in CI and on demand, but
+  not in the pre-push hook (which stays fast with Tier 1 only).
 
 ```
 ./scripts/test.sh              # fast, always safe
 ./scripts/smoke-lifecycle.sh   # full lifecycle, isolated
 ```
 
-**CI:** `.github/workflows/test.yml` installs the Claude Code CLI and runs Tier 1
-on every push to `master` and on pull requests. (`claude plugin validate` needs
-no auth, so it runs unauthenticated in CI.)
+**CI:** `.github/workflows/test.yml` installs the Claude Code CLI and runs both
+tiers as parallel jobs on every push to `master` and on pull requests — Tier 1
+(static) and Tier 2 (isolated lifecycle). Both run unauthenticated (neither
+`claude plugin validate` nor an isolated install needs auth).
 
 **Pre-push hook:** a committed hook at `.githooks/pre-push` runs Tier 1 before
 each push and blocks it on failure. Enable it once per clone:
