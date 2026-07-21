@@ -16,13 +16,20 @@ infer from the prompt's content when obvious):
 
 ## Process (all variants)
 
-1. List anything ambiguous or missing in the user's prompt, plus any assumptions
-   you're making. Ask if something is blocking; otherwise state the assumption
-   and continue.
-2. Briefly explain your approach.
-3. Produce TWO improved versions in separate code blocks: (a) your best, tightest
-   rewrite, and (b) an alternative with a different angle.
-4. Recommend which to use and why (2-3 sentences).
+Structure the response with these headings, in this order, so the reader can
+see exactly where each part starts and ends:
+
+1. `## Ambiguities & Assumptions` — list anything ambiguous or missing in the
+   user's prompt, plus any assumptions you're making. Ask if something is
+   blocking; otherwise state the assumption and continue.
+2. `## Approach` — briefly explain your approach.
+3. Two improved versions, each under its own heading:
+   - `## Variant A — <short label>` followed by the rewrite in a code block.
+   - `## Variant B — <short label>` followed by the rewrite in a code block.
+   Variant A is your best, tightest rewrite; Variant B is an alternative with
+   a different angle. Give each variant a short descriptive label (e.g. "Design
+   Brief", "Comparative Evaluation") instead of leaving it generic.
+4. `## Recommendation` — which variant to use and why (2-3 sentences).
 
 Use the relevant table below as a checklist — include a component only when it
 adds real signal, and note briefly when you skip one. Never invent facts,
