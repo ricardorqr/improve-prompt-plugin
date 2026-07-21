@@ -75,8 +75,10 @@ jobs:
 
       - name: Extract changelog notes for this version
         if: steps.v.outputs.needed == 'true'
+        env:
+          VERSION: ${{ steps.v.outputs.version }}
         run: |
-          version="${{ steps.v.outputs.version }}"
+          version="$VERSION"
           # Print the body between "## [$version]" and the next "## [" header.
           awk -v ver="$version" '
             $0 ~ "^## \\[" ver "\\]" {grab=1; next}
@@ -90,14 +92,15 @@ jobs:
 
       - name: Create release
         if: steps.v.outputs.needed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.v.outputs.version }}
         run: |
-          version="${{ steps.v.outputs.version }}"
+          version="$VERSION"
           gh release create "v$version" \
             --title "v$version" \
             --notes-file release-notes.md \
             --latest
-        env:
-          GH_TOKEN: ${{ github.token }}
 
   sync-metadata:
     name: Sync About + topics (best-effort)

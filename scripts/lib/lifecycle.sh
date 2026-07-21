@@ -69,7 +69,8 @@ run_lifecycle() {
   _lc_cleanup() { rm -rf "$cfg"; }
   trap _lc_cleanup RETURN
 
-  local pcli
+  # bash has no function-local functions; single-caller/single-shot use makes
+  # pcli's global namespace immaterial here.
   pcli() { CLAUDE_CONFIG_DIR="$cfg" claude plugin "$@"; }
 
   newv="$(lifecycle_head_version)"
