@@ -352,24 +352,33 @@ die() { printf "%sverify-release: %s%s\n" "$red" "$1" "$rst" >&2; exit 1; }
 
 command -v gh >/dev/null 2>&1 || die "gh CLI not found on PATH"
 
-sha="$(git -C "$ROOT" rev-parse HEAD)"
+sha="$(git -C "$ROOT" rev-parse HEAD 2>/dev/null)" \
+  || die "not a git repo (or no HEAD) at $ROOT"
+[ -n "$sha" ] || die "could not resolve HEAD commit"
 printf "verify-release · waiting for CI on %s%s%s\n" "$dim" "${sha:0:12}" "$rst"
 
 # Find the most recent run for this commit. Retry briefly — the run may not be
-# registered the instant after a push.
+# registered the instant after a push. `// empty` turns an empty result into an
+# empty string (jq renders a missing field as the literal "null" otherwise,
+# which would break the retry). A genuine gh failure (auth/network/wrong
+# remote) fails the command, so we abort immediately instead of mistaking it
+# for "no run yet".
 run_id=""
 for _ in 1 2 3 4 5 6; do
-  run_id="$(gh run list --commit "$sha" --limit 1 --json databaseId \
-              --jq '.[0].databaseId' 2>/dev/null)"
+  if ! run_id="$(gh run list --commit "$sha" --limit 1 --json databaseId \
+                   --jq '.[0].databaseId // empty')"; then
+    die "gh run list failed for $sha (auth, network, or wrong remote?)"
+  fi
   [ -n "$run_id" ] && break
-  printf "  %sno run yet for this commit; retrying in 10s…%s\n" "$dim" "$rst"
+  printf "  %sno run registered yet for this commit; retrying in 10s…%s\n" "$dim" "$rst"
   sleep 10
 done
-[ -n "$run_id" ] || die "no CI run found for $sha (did you push this commit?)"
+[ -n "$run_id" ] || die "no CI run found for $sha after retrying (did you push this commit?)"
 
-printf "  watching run %s…\n" "$run_id"
+printf "  watching run %s… (live progress below)\n" "$run_id"
 # --exit-status makes gh return non-zero if the run concluded in failure.
-if ! gh run watch "$run_id" --exit-status >/dev/null 2>&1; then
+# Output is left visible so the user sees progress during the (minutes-long) wait.
+if ! gh run watch "$run_id" --exit-status; then
   die "CI run $run_id did not succeed — not running lifecycle"
 fi
 printf "  CI is green ✓\n\n"
