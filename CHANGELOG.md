@@ -5,6 +5,17 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.1] - 2026-07-20
+
+### Added
+- GitHub Actions release automation: on a version bump landing on `master`
+  (after the Tier 1 + Tier 2 test jobs pass), CI cuts the matching `vX.Y.Z` tag
+  and GitHub Release from the changelog, and best-effort syncs the repo About
+  description and topics from `.github/repo-metadata.json`.
+- `scripts/verify-release.sh` — waits for the pushed commit's CI run to go green,
+  then runs a six-step install/uninstall lifecycle test against a throwaway
+  config dir (shared with the CI Tier 2 job via `scripts/lib/lifecycle.sh`).
+
 ## [1.1.0] - 2026-07-20
 
 ### Changed
@@ -39,6 +50,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   writing, analysis, or general tasks.
 - Marketplace manifest so the plugin is installable via Claude Code.
 
+[1.1.1]: https://github.com/ricardorqr/improve-prompt-plugin/releases/tag/v1.1.1
 [1.1.0]: https://github.com/ricardorqr/improve-prompt-plugin/releases/tag/v1.1.0
 [1.0.2]: https://github.com/ricardorqr/improve-prompt-plugin/releases/tag/v1.0.2
 [1.0.1]: https://github.com/ricardorqr/improve-prompt-plugin/releases/tag/v1.0.1
