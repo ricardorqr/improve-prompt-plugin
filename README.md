@@ -97,6 +97,11 @@ Invoke:
 /improve-prompt:start coding write a python function to dedupe a list
 ```
 
+Or invoke the dedicated command directly (same result, no inference step):
+```
+/improve-prompt:coding write a python function to dedupe a list
+```
+
 **Before**
 ```
 write a python function to dedupe a list
@@ -122,6 +127,11 @@ and duplicates interleaved with order-sensitivity (e.g. [3,1,3,2,1] -> [3,1,2]).
 Invoke:
 ```
 /improve-prompt:start writing draft an email telling the team the deploy is delayed
+```
+
+Or invoke the dedicated command directly (same result, no inference step):
+```
+/improve-prompt:writing draft an email telling the team the deploy is delayed
 ```
 
 **Before**
@@ -150,6 +160,11 @@ Tone: calm, accountable, no over-apologizing. End with where to ask questions.
 Invoke:
 ```
 /improve-prompt:start analysis compare RDS vs self-managed Postgres for our app
+```
+
+Or invoke the dedicated command directly (same result, no inference step):
+```
+/improve-prompt:analysis compare RDS vs self-managed Postgres for our app
 ```
 
 **Before**
