@@ -45,3 +45,84 @@ jobs:
       # CLAUDE_CONFIG_DIR against this checkout — no shared/global state.
       - name: Run Tier 2 lifecycle smoke test
         run: ./scripts/smoke-lifecycle.sh
+
+  release:
+    name: Cut GitHub release on version bump
+    runs-on: ubuntu-latest
+    needs: [tier1, tier2]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Determine version and whether a release is needed
+        id: v
+        run: |
+          version="$(python3 -c 'import json;print(json.load(open("plugins/improve-prompt/.claude-plugin/plugin.json"))["version"])')"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          if git rev-parse "v$version" >/dev/null 2>&1 \
+             || gh release view "v$version" >/dev/null 2>&1; then
+            echo "needed=false" >> "$GITHUB_OUTPUT"
+            echo "v$version already released — nothing to do."
+          else
+            echo "needed=true" >> "$GITHUB_OUTPUT"
+          fi
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Extract changelog notes for this version
+        if: steps.v.outputs.needed == 'true'
+        run: |
+          version="${{ steps.v.outputs.version }}"
+          # Print the body between "## [$version]" and the next "## [" header.
+          awk -v ver="$version" '
+            $0 ~ "^## \\[" ver "\\]" {grab=1; next}
+            grab && /^## \[/ {exit}
+            grab {print}
+          ' CHANGELOG.md > release-notes.md
+          if [ ! -s release-notes.md ]; then
+            echo "Release v$version" > release-notes.md
+          fi
+          echo "----- release notes -----"; cat release-notes.md
+
+      - name: Create release
+        if: steps.v.outputs.needed == 'true'
+        run: |
+          version="${{ steps.v.outputs.version }}"
+          gh release create "v$version" \
+            --title "v$version" \
+            --notes-file release-notes.md \
+            --latest
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+  sync-metadata:
+    name: Sync About + topics (best-effort)
+    runs-on: ubuntu-latest
+    needs: [tier1, tier2]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    continue-on-error: true
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Apply repo metadata
+        run: |
+          desc="$(python3 -c 'import json;print(json.load(open(".github/repo-metadata.json"))["description"])')"
+          home="$(python3 -c 'import json;print(json.load(open(".github/repo-metadata.json"))["homepage"])')"
+          topics="$(python3 -c 'import json;print(",".join(json.load(open(".github/repo-metadata.json"))["topics"]))')"
+          echo "Setting description + homepage…"
+          gh repo edit "$GITHUB_REPOSITORY" --description "$desc" --homepage "$home" \
+            || echo "WARN: could not set description/homepage (token may lack admin)"
+          echo "Setting topics: $topics"
+          IFS=',' read -ra arr <<< "$topics"
+          args=(); for t in "${arr[@]}"; do args+=(-f "names[]=$t"); done
+          gh api -X PUT "repos/$GITHUB_REPOSITORY/topics" \
+            -H "Accept: application/vnd.github+json" "${args[@]}" \
+            || echo "WARN: could not set topics (token may lack admin)"
+        env:
+          GH_TOKEN: ${{ github.token }}

@@ -241,6 +241,34 @@ If the `claude` CLI isn't on your `PATH`, the two `--strict` manifest checks are
 skipped (not failed) — the consistency checks still run. Bypass a single push
 with `git push --no-verify`.
 
+### Releasing
+
+Releases are automated. Bump the version in
+`plugins/improve-prompt/.claude-plugin/plugin.json` (and keep `CITATION.cff`
++ the top `CHANGELOG.md` entry in sync — Tier 1 enforces this), then push to
+`master`. Once **Tier 1** and **Tier 2** pass, CI:
+
+- **`release`** — if the version has no matching tag yet, creates `vX.Y.Z` and a
+  GitHub Release whose notes are the `## [X.Y.Z]` changelog section. Idempotent:
+  an already-released version is a no-op.
+- **`sync-metadata`** — best-effort sync of the repo About description, homepage,
+  and topics from `.github/repo-metadata.json`.
+
+> **Note:** `sync-metadata` runs with `continue-on-error` because the default
+> `GITHUB_TOKEN` may lack permission to edit repo settings (org policy /
+> `administration` scope). If it warns, apply the metadata once locally:
+> `gh repo edit ricardorqr/improve-prompt-plugin --description "…" --homepage "…"`.
+
+After pushing, verify locally that CI is green **and** the install/uninstall
+lifecycle is clean in one command:
+
+```bash
+./scripts/verify-release.sh
+```
+
+It waits for the pushed commit's CI run to conclude, then (only if green) runs
+the six-step real-world lifecycle against a throwaway config dir.
+
 ## Maintaining
 
 - Edit the skill at `plugins/improve-prompt/skills/start/SKILL.md`.

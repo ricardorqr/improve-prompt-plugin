@@ -1,0 +1,14 @@
+{
+  "description": "A Claude Code plugin that rewrites draft prompts into clearer, more effective ones — two improved variants plus a recommendation.",
+  "homepage": "https://github.com/ricardorqr/improve-prompt-plugin",
+  "topics": [
+    "plugin",
+    "productivity",
+    "ai",
+    "prompt",
+    "claude",
+    "prompt-engineering",
+    "claude-code",
+    "claude-code-plugin"
+  ]
+}
