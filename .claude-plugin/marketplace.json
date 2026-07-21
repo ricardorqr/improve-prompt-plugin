@@ -8,7 +8,7 @@
   "plugins": [
     {
       "name": "improve-prompt",
-      "description": "Rewrite a draft prompt into a clearer, more effective one for Claude. Produces two improved variants plus a recommendation, tuned for coding, writing, analysis, or general tasks. Provides the /improve-prompt:start command and auto-triggers as a skill.",
+      "description": "Rewrite a draft prompt into a clearer, more effective one for Claude. Produces two improved variants plus a recommendation, tuned for coding, writing, analysis, or general tasks. Provides /improve-prompt:start (auto-detect, auto-triggers as a skill) plus dedicated variant-locked commands: :coding, :writing, :analysis.",
       "author": {
         "name": "ricardorqr"
       },
