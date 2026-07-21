@@ -1,6 +1,6 @@
 # improve-prompt — Claude Code Plugin
 
-[![test](https://github.com/ricardorqr/improve-prompt-plugin/actions/workflows/test.yml/badge.svg)](https://github.com/ricardorqr/improve-prompt-plugin/actions/workflows/test.yml)
+[![CI](https://github.com/ricardorqr/improve-prompt-plugin/actions/workflows/test.yml/badge.svg)](https://github.com/ricardorqr/improve-prompt-plugin/actions/workflows/test.yml)
 
 A Claude Code plugin that rewrites your draft prompts into stronger ones for
 Claude. Given any prompt, it flags what's missing, then returns **two
