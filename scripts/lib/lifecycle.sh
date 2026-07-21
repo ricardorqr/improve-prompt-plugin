@@ -15,8 +15,7 @@
 LC_PLUGIN="improve-prompt"
 LC_MARKET="improve-prompt-marketplace"
 LC_SPEC="$LC_PLUGIN@$LC_MARKET"
-LC_SKILL="start"
-LC_COMMAND="improve-prompt:start"
+LC_SKILLS=(start coding writing analysis)
 
 pass=0 fail=0
 green="$(printf '\033[32m')"; red="$(printf '\033[31m')"; dim="$(printf '\033[2m')"; rst="$(printf '\033[0m')"
@@ -132,9 +131,12 @@ run_lifecycle() {
   # config dir — tombstoned (.orphaned_at) dirs left by the old phase must not
   # leak into the new-version assertions.
   newdir="$cfg/plugins/cache/$LC_MARKET/$LC_PLUGIN/$newv"
-  [ -d "$newdir/skills/$LC_SKILL" ] \
-    && ok "installed copy has skills/$LC_SKILL/" \
-    || bad "installed copy missing skills/$LC_SKILL/" "$newdir"
+  local skill
+  for skill in "${LC_SKILLS[@]}"; do
+    [ -d "$newdir/skills/$skill" ] \
+      && ok "installed copy has skills/$skill/" \
+      || bad "installed copy missing skills/$skill/" "$newdir"
+  done
 
   if [ -d "$newdir/skills/improve-prompt" ]; then
     bad "stale skills/improve-prompt/ present" "$newdir/skills/improve-prompt"
@@ -142,15 +144,15 @@ run_lifecycle() {
     ok "no stale skills/improve-prompt/ in installed copy"
   fi
 
-  # Derived command = <plugin name>:<skill dir name>, from the installed copy.
-  local pname sdir sname derived
-  pname="$(python3 -c 'import json;print(json.load(open("'"$ROOT"'/plugins/improve-prompt/.claude-plugin/plugin.json"))["name"])')"
-  sdir="$(find "$newdir/skills" -mindepth 1 -maxdepth 1 -type d 2>/dev/null | head -1)"
-  sname="$(basename "${sdir:-$LC_SKILL}")"
-  derived="$pname:$sname"
-  [ "$derived" = "$LC_COMMAND" ] \
-    && ok "derived command is /$LC_COMMAND" \
-    || bad "derived command is /$derived, expected /$LC_COMMAND"
+  # The installed copy's skill dirs must be EXACTLY the expected set — no
+  # extra, none missing. (Avoids relying on filesystem enumeration order,
+  # which broke the old single-skill "pick the first one" assumption.)
+  local actual_sorted expected_sorted
+  actual_sorted="$(find "$newdir/skills" -mindepth 1 -maxdepth 1 -type d -exec basename {} \; 2>/dev/null | sort)"
+  expected_sorted="$(printf '%s\n' "${LC_SKILLS[@]}" | sort)"
+  [ "$actual_sorted" = "$expected_sorted" ] \
+    && ok "installed copy's skill dirs match expected set (${LC_SKILLS[*]})" \
+    || bad "installed copy's skill dirs mismatch" "expected: $(printf '%s ' $expected_sorted) / actual: $(printf '%s ' $actual_sorted)"
 
   pcli uninstall "$LC_PLUGIN" >/dev/null 2>&1
   if pcli list 2>&1 | grep -qi "$LC_PLUGIN"; then
