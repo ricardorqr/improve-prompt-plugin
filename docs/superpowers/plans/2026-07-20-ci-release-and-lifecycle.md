@@ -121,8 +121,28 @@ _lc_installed_paths() { # <cfg>
   find "$1" -type d -path "*/$LC_PLUGIN/*" -prune -print 2>/dev/null | head -20
 }
 
+# Assert every recorded version dir is "removed" after uninstall. On CLI 2.1.x
+# `claude plugin uninstall` deregisters the plugin and marks its cache dir
+# .orphaned_at for deferred GC rather than deleting it (and no purge command
+# exists), so "removed" means absent OR carrying an .orphaned_at tombstone —
+# not physically gone.
+_lc_assert_tombstoned() { # <label> <newline-separated paths>
+  local label="$1" paths="$2" live="" path
+  while IFS= read -r path; do
+    [ -z "$path" ] && continue
+    if [ -e "$path" ] && [ ! -f "$path/.orphaned_at" ]; then
+      live="$path"; break
+    fi
+  done <<< "$paths"
+  if [ -z "$live" ]; then
+    ok "$label removed or tombstoned (.orphaned_at) after uninstall"
+  else
+    bad "$label still live on disk (no .orphaned_at)" "$live"
+  fi
+}
+
 run_lifecycle() {
-  local cfg newv oldtag details start_dir old_dir path
+  local cfg newv oldtag details old_dir newdir
   cfg="$(mktemp -d)"
   # shellcheck disable=SC2317
   _lc_cleanup() { rm -rf "$cfg"; }
@@ -159,6 +179,7 @@ run_lifecycle() {
   else
     bad "old install failed" "$(pcli install "$LC_SPEC" 2>&1 | tail -3)"
   fi
+  local old_paths
   old_paths="$(_lc_installed_paths "$cfg")"
 
   pcli uninstall "$LC_PLUGIN" >/dev/null 2>&1
@@ -167,16 +188,7 @@ run_lifecycle() {
   else
     ok "old version deregistered (gone from \`plugin list\`)"
   fi
-  local residue=0
-  while IFS= read -r path; do
-    [ -z "$path" ] && continue
-    [ -e "$path" ] && { residue=1; break; }
-  done <<< "$old_paths"
-  if [ "$residue" -eq 0 ]; then
-    ok "all old-version files removed from disk"
-  else
-    bad "old-version files remain on disk" "$path"
-  fi
+  _lc_assert_tombstoned "old-version files" "$old_paths"
   [ -n "${old_dir:-}" ] && rm -rf "$old_dir"
 
   # === Phase NEW: install HEAD, verify features, uninstall, verify gone =====
@@ -194,43 +206,37 @@ run_lifecycle() {
     && ok "installed version is $newv" \
     || bad "version $newv not in details" "$(printf '%s' "$details" | head -3)"
 
-  start_dir="$(find "$cfg" -type d -path "*/$LC_PLUGIN/*/skills/$LC_SKILL" 2>/dev/null | head -1)"
-  [ -n "$start_dir" ] \
+  # Feature checks are scoped to the LIVE installed version dir, not the whole
+  # config dir — tombstoned (.orphaned_at) dirs left by the old phase must not
+  # leak into the new-version assertions.
+  newdir="$cfg/plugins/cache/$LC_MARKET/$LC_PLUGIN/$newv"
+  [ -d "$newdir/skills/$LC_SKILL" ] \
     && ok "installed copy has skills/$LC_SKILL/" \
-    || bad "installed copy missing skills/$LC_SKILL/"
+    || bad "installed copy missing skills/$LC_SKILL/" "$newdir"
 
-  local stale
-  stale="$(find "$cfg" -type d -path "*/$LC_PLUGIN/*/skills/improve-prompt" 2>/dev/null | head -1)"
-  [ -z "$stale" ] \
-    && ok "no stale skills/improve-prompt/ in installed copy" \
-    || bad "stale skills/improve-prompt/ present" "$stale"
+  if [ -d "$newdir/skills/improve-prompt" ]; then
+    bad "stale skills/improve-prompt/ present" "$newdir/skills/improve-prompt"
+  else
+    ok "no stale skills/improve-prompt/ in installed copy"
+  fi
 
-  # Derived command = <plugin name>:<skill dir name>, asserted against HEAD manifest.
-  local pname sname derived
+  # Derived command = <plugin name>:<skill dir name>, from the installed copy.
+  local pname sdir sname derived
   pname="$(python3 -c 'import json;print(json.load(open("'"$ROOT"'/plugins/improve-prompt/.claude-plugin/plugin.json"))["name"])')"
-  sname="$(basename "${start_dir:-$LC_SKILL}")"
+  sdir="$(find "$newdir/skills" -mindepth 1 -maxdepth 1 -type d 2>/dev/null | head -1)"
+  sname="$(basename "${sdir:-$LC_SKILL}")"
   derived="$pname:$sname"
   [ "$derived" = "$LC_COMMAND" ] \
     && ok "derived command is /$LC_COMMAND" \
     || bad "derived command is /$derived, expected /$LC_COMMAND"
 
-  new_paths="$(_lc_installed_paths "$cfg")"
   pcli uninstall "$LC_PLUGIN" >/dev/null 2>&1
   if pcli list 2>&1 | grep -qi "$LC_PLUGIN"; then
     bad "new version still listed after uninstall"
   else
     ok "new version deregistered (gone from \`plugin list\`)"
   fi
-  residue=0
-  while IFS= read -r path; do
-    [ -z "$path" ] && continue
-    [ -e "$path" ] && { residue=1; break; }
-  done <<< "$new_paths"
-  if [ "$residue" -eq 0 ]; then
-    ok "all new-version files removed from disk"
-  else
-    bad "new-version files remain on disk" "$path"
-  fi
+  _lc_assert_tombstoned "new-version files" "$newdir"
 
   printf "\n%d passed, %d failed\n" "$pass" "$fail"
   [ "$fail" -eq 0 ]

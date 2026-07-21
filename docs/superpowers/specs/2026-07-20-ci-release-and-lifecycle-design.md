@@ -111,18 +111,30 @@ Version resolution:
   when HEAD is `v1.1.0`). If none exists, degrade to using the current version
   for the "old" phase and log that the old/new distinction was skipped.
 
+**Uninstall semantics (CLI v2.1.x):** `claude plugin uninstall` deregisters the
+plugin (drops it from `plugin list`/`details`) but does **not** delete its
+on-disk cache dir — it writes an `.orphaned_at` tombstone into that dir for
+deferred GC, and no purge command exists (`prune`, `marketplace remove` do not
+remove it). So "files removed" is asserted as **absent OR carrying an
+`.orphaned_at` tombstone** — the strongest truthful check the CLI allows.
+Feature checks are scoped to the live installed version dir
+(`plugins/cache/<market>/<plugin>/<version>/`), never the whole config dir, so
+a tombstoned old dir cannot leak into the new-version assertions.
+
 Steps:
 1. Add marketplace pinned to the **OLD** tag → install → **record installed file
    paths** (the on-disk plugin dir under the throwaway config).
-2. **Uninstall old** → assert every recorded path is gone AND the plugin is
-   absent from `plugin list` and `plugin details`.
+2. **Uninstall old** → assert the plugin is absent from `plugin list`/`details`
+   AND each recorded path is removed-or-tombstoned.
 3. Add marketplace at **HEAD (new)** → install.
-4. **Verify features of the new version** on the installed copy:
+4. **Verify features of the new version** on the installed copy (scoped to the
+   live version dir):
    - skill dir `skills/start/` exists,
    - derived command is `improve-prompt:start`,
    - installed version matches `plugin.json`,
    - no stale `skills/improve-prompt/` directory.
-5. **Uninstall new** → assert all recorded new paths gone + deregistered.
+5. **Uninstall new** → assert deregistered AND the new version dir is
+   removed-or-tombstoned.
 
 This **supersedes `smoke-lifecycle.sh`**: that script is reshaped into the
 lifecycle core (the old install→uninstall→reinstall ordering is dropped in favor
