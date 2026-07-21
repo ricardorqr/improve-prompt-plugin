@@ -22,8 +22,9 @@ Add the marketplace once, then install the plugin:
 /plugin install improve-prompt@improve-prompt-marketplace
 ```
 
-Restart Claude Code (or start a new session) and confirm a single
-`/improve-prompt:start` entry appears in the `/` menu.
+Restart Claude Code (or start a new session) and confirm four entries appear
+in the `/` menu: `/improve-prompt:start`, `/improve-prompt:coding`,
+`/improve-prompt:writing`, and `/improve-prompt:analysis`.
 
 ## Update
 
@@ -60,6 +61,17 @@ Hint the variant explicitly if you want: `/improve-prompt:start coding ...`,
 `/improve-prompt:start writing ...`, `/improve-prompt:start analysis ...`, or
 `/improve-prompt:start general ...`. Otherwise it infers the best fit (defaulting to
 General).
+
+Already know which variant you want? Use the dedicated command instead —
+it hard-locks that variant with no inference step, even if the draft's
+content looks like it could be something else:
+
+- `/improve-prompt:coding <draft>`
+- `/improve-prompt:writing <draft>`
+- `/improve-prompt:analysis <draft>`
+
+These are slash-command-only — unlike `start`, they don't auto-trigger from a
+pasted draft without the command.
 
 ### What you get back
 
@@ -200,13 +212,19 @@ improve-prompt-plugin/
         ├── .claude-plugin/
         │   └── plugin.json              # plugin manifest (name, version, keywords)
         └── skills/
-            └── start/
-                └── SKILL.md             # the skill (command + auto-trigger)
+            ├── start/
+            │   └── SKILL.md             # auto-detect + hinted variants (command + auto-trigger)
+            ├── coding/
+            │   └── SKILL.md             # hard-locked Coding variant (command only)
+            ├── writing/
+            │   └── SKILL.md             # hard-locked Writing variant (command only)
+            └── analysis/
+                └── SKILL.md             # hard-locked Analysis variant (command only)
 ```
 
 ## Maintaining
 
-- Edit the skill at `plugins/improve-prompt/skills/start/SKILL.md`.
+- Edit the skills at `plugins/improve-prompt/skills/{start,coding,writing,analysis}/SKILL.md`.
 - Bump `version` in `plugins/improve-prompt/.claude-plugin/plugin.json` on each
   change so installs can pull updates.
 - Push to GitHub, then run the **Update** commands above to pull the change.
