@@ -80,18 +80,21 @@ fi
 
 # --- 3 & 4. Skill layout -----------------------------------------------------
 printf "\nSkill layout\n"
-skill_md="$PLUGIN_DIR/skills/$EXPECT_SKILL/SKILL.md"
-if [ -f "$skill_md" ]; then
-  ok "skill file exists at skills/$EXPECT_SKILL/SKILL.md"
-  skill_name="$(sed -n -E 's/^name:[[:space:]]*(.*)$/\1/p' "$skill_md" | head -1)"
-  if [ "$skill_name" = "$EXPECT_SKILL" ]; then
-    ok "SKILL.md frontmatter name is '$EXPECT_SKILL'"
+EXPECT_SKILLS=(start coding writing analysis)
+for skill in "${EXPECT_SKILLS[@]}"; do
+  skill_md="$PLUGIN_DIR/skills/$skill/SKILL.md"
+  if [ -f "$skill_md" ]; then
+    ok "skill file exists at skills/$skill/SKILL.md"
+    this_name="$(sed -n -E 's/^name:[[:space:]]*(.*)$/\1/p' "$skill_md" | head -1)"
+    if [ "$this_name" = "$skill" ]; then
+      ok "SKILL.md frontmatter name is '$skill'"
+    else
+      bad "SKILL.md frontmatter name is '$this_name', expected '$skill'"
+    fi
   else
-    bad "SKILL.md frontmatter name is '$skill_name', expected '$EXPECT_SKILL'"
+    bad "missing skill file" "$skill_md not found"
   fi
-else
-  bad "missing skill file" "$skill_md not found"
-fi
+done
 
 if [ -d "$PLUGIN_DIR/skills/improve-prompt" ]; then
   bad "stale skills/improve-prompt/ directory still present" "should have been renamed to skills/$EXPECT_SKILL/"
@@ -102,7 +105,7 @@ fi
 # --- 5. Derived command ------------------------------------------------------
 printf "\nDerived command\n"
 plugin_name="$(json_field "$PLUGIN_JSON" name)"
-derived="$plugin_name:$skill_name"
+derived="$plugin_name:$EXPECT_SKILL"
 if [ "$derived" = "$EXPECT_COMMAND" ]; then
   ok "slash command derives to /$EXPECT_COMMAND"
 else
