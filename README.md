@@ -8,8 +8,11 @@ improved variants plus a recommendation**, tuned for one of four task types:
 General, Coding, Writing, or Analysis.
 
 Once installed it works two ways:
-- As the **`/improve-prompt:start`** slash command, and
-- As an **auto-triggering skill** (just paste a draft and ask to improve it).
+- As a slash command — `/improve-prompt:start` (auto-detects the variant) or
+  the dedicated `/improve-prompt:coding`, `:writing`, `:analysis` (hard-locks
+  that variant), and
+- As an **auto-triggering skill** (just paste a draft and ask to improve it —
+  this only applies to `start`).
 
 ---
 
@@ -35,8 +38,9 @@ in the `/` menu: `/improve-prompt:start`, `/improve-prompt:coding`,
 
 ## Uninstall
 
-Uninstalling removes the **entire plugin** — the skill and the
-`/improve-prompt:start` command — in one atomic action. Nothing is left behind.
+Uninstalling removes the **entire plugin** — all 4 skills and commands
+(`start`, `coding`, `writing`, `analysis`) — in one atomic action. Nothing is
+left behind.
 
 ```
 /plugin uninstall improve-prompt@improve-prompt-marketplace
