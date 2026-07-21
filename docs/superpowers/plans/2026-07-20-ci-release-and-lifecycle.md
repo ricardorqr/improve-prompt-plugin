@@ -148,7 +148,9 @@ run_lifecycle() {
   _lc_cleanup() { rm -rf "$cfg"; }
   trap _lc_cleanup RETURN
 
-  local pcli
+  # Note: this is a nested function, always in the global function namespace
+  # (bash has no function-local functions); single-caller/single-shot use makes
+  # that immaterial here.
   pcli() { CLAUDE_CONFIG_DIR="$cfg" claude plugin "$@"; }
 
   newv="$(lifecycle_head_version)"
@@ -526,8 +528,10 @@ Add after the end of the `tier2:` job (keep everything above unchanged):
 
       - name: Extract changelog notes for this version
         if: steps.v.outputs.needed == 'true'
+        env:
+          VERSION: ${{ steps.v.outputs.version }}
         run: |
-          version="${{ steps.v.outputs.version }}"
+          version="$VERSION"
           # Print the body between "## [$version]" and the next "## [" header.
           awk -v ver="$version" '
             $0 ~ "^## \\[" ver "\\]" {grab=1; next}
@@ -541,14 +545,15 @@ Add after the end of the `tier2:` job (keep everything above unchanged):
 
       - name: Create release
         if: steps.v.outputs.needed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.v.outputs.version }}
         run: |
-          version="${{ steps.v.outputs.version }}"
+          version="$VERSION"
           gh release create "v$version" \
             --title "v$version" \
             --notes-file release-notes.md \
             --latest
-        env:
-          GH_TOKEN: ${{ github.token }}
 
   sync-metadata:
     name: Sync About + topics (best-effort)
